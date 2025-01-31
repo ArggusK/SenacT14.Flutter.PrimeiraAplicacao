@@ -14,75 +14,80 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var textController1 = TextEditingController();
+  final textController1 = TextEditingController();
   double valorGuardado1 = 0;
-  double? valorGuardado2;
+  double valorGuardado2 = 0;
   double? valorGuardado1Label;
   double? valorGuardado2Label;
   String calculo = "";
   String result = "";
+  bool _inputEnabled = true;
+  bool _operadoresHabilitados = true;
+
+  @override
+  void initState() {
+    super.initState();
+    textController1.addListener(_handleTextInput);
+  }
+
+  void _handleTextInput() {
+    if (textController1.text.isNotEmpty && result.isNotEmpty) {
+      setState(() {
+        result = "";
+        _operadoresHabilitados = true;
+      });
+    }
+  }
 
   void _handleOperation(String newCalculo) {
-    setState(() {
-      // Se já houver uma operação em andamento, calcula automaticamente
-      if (calculo.isNotEmpty && textController1.text.isNotEmpty) {
-        valorGuardado2 = double.tryParse(textController1.text) ?? 0;
-        valorGuardado2Label = valorGuardado2;
-        _calcularOperacaoAtual();
-      }
+    if (!_operadoresHabilitados) return;
 
-      // Se houver um resultado, usa-o como valor1
+    setState(() {
+      _inputEnabled = true;
+      _operadoresHabilitados = false;
+
       if (result.isNotEmpty) {
         valorGuardado1 = double.tryParse(result.split(' ').last) ?? 0;
         valorGuardado1Label = valorGuardado1;
         result = "";
-      } else if (textController1.text.isNotEmpty) {
-        // Caso normal: pega o valor do campo de entrada
+      } else {
         valorGuardado1 = double.tryParse(textController1.text) ?? 0;
-        valorGuardado1Label = valorGuardado1;
+        valorGuardado1Label = double.tryParse(textController1.text);
       }
 
-      // Prepara para a nova operação
-      calculo = newCalculo;
       textController1.clear();
+      calculo = newCalculo;
       valorGuardado2Label = null;
     });
   }
 
-  void _calcularOperacaoAtual() {
-    switch (calculo) {
-      case "+":
-        valorGuardado1 += valorGuardado2!;
-        break;
-      case "-":
-        valorGuardado1 -= valorGuardado2!;
-        break;
-      case "x":
-        valorGuardado1 *= valorGuardado2!;
-        break;
-      case "÷":
-        valorGuardado1 /= valorGuardado2!;
-        break;
-    }
-    valorGuardado1Label = valorGuardado1;
-    valorGuardado2Label = null;
-  }
-
-  void somaCalc() => _handleOperation("+");
-  void subtracaoCalc() => _handleOperation("-");
-  void multiplicacaoCalc() => _handleOperation("x");
-  void divisaoCalc() => _handleOperation("÷");
-
   void resultadoCalc() {
+    if (calculo.isEmpty || !_inputEnabled) return;
+
     setState(() {
-      if (textController1.text.isNotEmpty) {
-        valorGuardado2 = double.tryParse(textController1.text) ?? 0;
-        valorGuardado2Label = valorGuardado2;
-        _calcularOperacaoAtual();
-        result = "resultado $valorGuardado1";
-        textController1.clear();
-        calculo = "";
+      valorGuardado2 = double.tryParse(textController1.text) ?? 0;
+      valorGuardado2Label = double.tryParse(textController1.text);
+
+      switch (calculo) {
+        case "+":
+          result = "${valorGuardado1 + valorGuardado2}";
+          break;
+        case "-":
+          result = "${valorGuardado1 - valorGuardado2}";
+          break;
+        case "x":
+          result = "${valorGuardado1 * valorGuardado2}";
+          break;
+        case "÷":
+          result = valorGuardado2 != 0
+              ? "${valorGuardado1 / valorGuardado2}"
+              : "Erro";
+          break;
       }
+
+      textController1.clear();
+      _inputEnabled = false;
+      _operadoresHabilitados = true;
     });
   }
 
@@ -90,11 +95,11 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       textController1.clear();
       result = "";
-      valorGuardado1 = 0;
       valorGuardado1Label = null;
-      valorGuardado2 = null;
       valorGuardado2Label = null;
       calculo = "";
+      _inputEnabled = true;
+      _operadoresHabilitados = true;
     });
   }
 
@@ -115,26 +120,39 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (calculo.isNotEmpty) calculo,
                 if (valorGuardado2Label != null) valorGuardado2Label.toString(),
               ].join(' '),
-              style: const TextStyle(fontSize: 20),
+              style: const TextStyle(fontSize: 16),
             ),
-            InputWidget(controller: textController1, label: ""),
+            const SizedBox(height: 20),
+            InputWidget(
+              controller: textController1,
+              label: "Digite um número",
+              enabled: _inputEnabled,
+            ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    iconButtonsRow(
-                      soma: somaCalc,
-                      subtracao: subtracaoCalc,
-                      multiplicacao: multiplicacaoCalc,
-                      divisao: divisaoCalc,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      result,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ]),
+                children: [
+                  iconButtonsRow(
+                    soma: _operadoresHabilitados
+                        ? () => _handleOperation("+")
+                        : null,
+                    subtracao: _operadoresHabilitados
+                        ? () => _handleOperation("-")
+                        : null,
+                    multiplicacao: _operadoresHabilitados
+                        ? () => _handleOperation("x")
+                        : null,
+                    divisao: _operadoresHabilitados
+                        ? () => _handleOperation("÷")
+                        : null,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(result.isNotEmpty ? "Resultado: $result" : "",
+                      style: const TextStyle(
+                        fontSize: 18,
+                      )),
+                ],
+              ),
             ),
           ],
         ),
@@ -143,15 +161,14 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           ClearFieldsButton(
-            onPressed: clearFields,
+            onPressed: clearFields, // Mantém funcionalidade de limpar
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           ResultadoButton(
-            onPressed: resultadoCalc,
+            onPressed: resultadoCalc, // Mantém funcionalidade de cálculo
           ),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

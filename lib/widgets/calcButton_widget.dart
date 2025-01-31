@@ -2,29 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 Widget iconButtonsRow({
-  required void Function() soma,
-  required void Function() subtracao,
-  required void Function() multiplicacao,
-  required void Function() divisao,
+  void Function()? soma,
+  void Function()? subtracao,
+  void Function()? multiplicacao,
+  void Function()? divisao,
 }) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       IconButton.filled(
         onPressed: soma,
-        icon: Icon(FontAwesomeIcons.plus),
+        icon: const Icon(FontAwesomeIcons.plus),
       ),
+      const SizedBox(width: 10),
       IconButton.filled(
         onPressed: subtracao,
-        icon: Icon(FontAwesomeIcons.minus),
+        icon: const Icon(FontAwesomeIcons.minus),
       ),
+      const SizedBox(width: 10),
       IconButton.filled(
         onPressed: multiplicacao,
-        icon: Icon(FontAwesomeIcons.xmark),
+        icon: const Icon(FontAwesomeIcons.xmark),
       ),
+      const SizedBox(width: 10),
       IconButton.filled(
         onPressed: divisao,
-        icon: Icon(FontAwesomeIcons.divide),
+        icon: const Icon(FontAwesomeIcons.divide),
       ),
     ],
   );
