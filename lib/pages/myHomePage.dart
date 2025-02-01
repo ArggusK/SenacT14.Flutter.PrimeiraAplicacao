@@ -22,10 +22,28 @@ class _MyHomePageState extends State<MyHomePage> {
   String calculo = "";
   String result = "";
   String historico = "";
+
   void criarOperacao() {
+    final inputText = textController1.text;
+    if (inputText.isEmpty) {
+      setState(() {
+        result = "Erro: Insira um número";
+      });
+      return;
+    }
+
+    final parsedValue = double.tryParse(inputText);
+    if (parsedValue == null) {
+      setState(() {
+        result = "Erro: Número inválido";
+        textController1.clear();
+      });
+      return;
+    }
+
     setState(() {
-      valorGuardado2 = double.tryParse(textController1.text) ?? 0;
-      valorGuardado2Label = double.tryParse(textController1.text) ?? 0;
+      valorGuardado2 = parsedValue;
+      valorGuardado2Label = parsedValue;
 
       switch (calculo) {
         case "+":
@@ -38,6 +56,16 @@ class _MyHomePageState extends State<MyHomePage> {
           valorGuardado1 *= valorGuardado2;
           break;
         case "÷":
+          if (valorGuardado2 == 0) {
+            result = "Erro: Divisão por zero";
+            historico = "";
+            valorGuardado1 = 0;
+            valorGuardado1Label = null;
+            calculo = "";
+            valorGuardado2Label = null;
+            textController1.clear();
+            return;
+          }
           valorGuardado1 /= valorGuardado2;
           break;
         default:
@@ -46,7 +74,9 @@ class _MyHomePageState extends State<MyHomePage> {
       }
 
       result = "Resultado: $valorGuardado1";
-      historico += " $valorGuardado2 $calculo";
+      historico =
+          "$valorGuardado1Label $calculo $valorGuardado2 = $valorGuardado1";
+
       valorGuardado1Label = valorGuardado1;
       valorGuardado2Label = null;
       textController1.clear();
@@ -54,12 +84,23 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void somaCalc() {
+    if (textController1.text.isEmpty && calculo.isEmpty) {
+      setState(() {
+        result = "Erro: Insira um número";
+      });
+      return;
+    }
     setState(() {
       if (calculo.isNotEmpty) {
         criarOperacao();
       } else {
-        valorGuardado1 = double.tryParse(textController1.text) ?? 0;
-        valorGuardado1Label = double.tryParse(textController1.text) ?? 0;
+        final parsedValue = double.tryParse(textController1.text);
+        if (parsedValue == null) {
+          result = "Erro: Número inválido";
+          return;
+        }
+        valorGuardado1 = parsedValue;
+        valorGuardado1Label = parsedValue;
         historico = "$valorGuardado1 +";
         textController1.clear();
       }
@@ -68,12 +109,23 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void subtracaoCalc() {
+    if (textController1.text.isEmpty && calculo.isEmpty) {
+      setState(() {
+        result = "Erro: Insira um número";
+      });
+      return;
+    }
     setState(() {
       if (calculo.isNotEmpty) {
         criarOperacao();
       } else {
-        valorGuardado1 = double.tryParse(textController1.text) ?? 0;
-        valorGuardado1Label = double.tryParse(textController1.text) ?? 0;
+        final parsedValue = double.tryParse(textController1.text);
+        if (parsedValue == null) {
+          result = "Erro: Número inválido";
+          return;
+        }
+        valorGuardado1 = parsedValue;
+        valorGuardado1Label = parsedValue;
         historico = "$valorGuardado1 -";
         textController1.clear();
       }
@@ -82,12 +134,23 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void multiplicacaoCalc() {
+    if (textController1.text.isEmpty && calculo.isEmpty) {
+      setState(() {
+        result = "Erro: Insira um número";
+      });
+      return;
+    }
     setState(() {
       if (calculo.isNotEmpty) {
         criarOperacao();
       } else {
-        valorGuardado1 = double.tryParse(textController1.text) ?? 0;
-        valorGuardado1Label = double.tryParse(textController1.text) ?? 0;
+        final parsedValue = double.tryParse(textController1.text);
+        if (parsedValue == null) {
+          result = "Erro: Número inválido";
+          return;
+        }
+        valorGuardado1 = parsedValue;
+        valorGuardado1Label = parsedValue;
         historico = "$valorGuardado1 x";
         textController1.clear();
       }
@@ -96,12 +159,23 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void divisaoCalc() {
+    if (textController1.text.isEmpty && calculo.isEmpty) {
+      setState(() {
+        result = "Erro: Insira um número";
+      });
+      return;
+    }
     setState(() {
       if (calculo.isNotEmpty) {
         criarOperacao();
       } else {
-        valorGuardado1 = double.tryParse(textController1.text) ?? 0;
-        valorGuardado1Label = double.tryParse(textController1.text) ?? 0;
+        final parsedValue = double.tryParse(textController1.text);
+        if (parsedValue == null) {
+          result = "Erro: Número inválido";
+          return;
+        }
+        valorGuardado1 = parsedValue;
+        valorGuardado1Label = parsedValue;
         historico = "$valorGuardado1 ÷";
         textController1.clear();
       }
